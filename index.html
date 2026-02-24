@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRVE: Web Design</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+
+    /* ==========================================================
+       RESET & VARIABLES
+    ========================================================== */
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg:      #0f1c1a;
+      --bg2:     #142422;
+      --surface: #1b2f2c;
+      --border:  #25413d;
+      --text:    #e5f2ef;
+      --muted:   #7fa5a0;
+      --accent:  #10b981;
+      --accent2: #6ee7b7;
+      --white:   #f0fdfa;
+    }
+
+
+    /* ==========================================================
+       SCROLLBAR — Emerald Neon
+    ========================================================== */
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #00ff9c #0b0f0e;
+    }
+
+    ::-webkit-scrollbar        { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track  { background: #0b0f0e; border-radius: 12px; }
+    ::-webkit-scrollbar-corner { background: transparent; }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #00ff9c, #00c97a);
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(0,255,156,0.6), inset 0 0 4px rgba(0,0,0,0.6);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #1affb3, #00e68a);
+      box-shadow: 0 0 12px rgba(0,255,156,0.9);
+    }
+
+
+    /* ==========================================================
+       BASE
+    ========================================================== */
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Fall back to normal cursor on touch devices */
+    @media (hover: none) {
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+    }
+
+
+    /* ==========================================================
+       CUSTOM CURSOR — crosshair style
+    ========================================================== */
+
+    /* Thin crosshair lines */
+    .cursor {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      left: -100px;
+      top: -100px;
+    }
+
+    /* Horizontal bar */
+    .cursor::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--accent);
+      transform: translateY(-50%);
+    }
+
+    /* Vertical bar */
+    .cursor::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      height: 100%;
+      width: 1px;
+      background: var(--accent);
+      transform: translateX(-50%);
+    }
+
+    /* Outer square that lags slightly behind */
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--accent);
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      opacity: 0.5;
+      left: -100px;
+      top: -100px;
+      transition: width 0.2s, height 0.2s, opacity 0.2s;
+    }
+
+    /* Expand the ring on hoverable elements */
+    body.cursor-hover .cursor-ring {
+      width: 52px;
+      height: 52px;
+      opacity: 0.8;
+    }
+
+
+    /* ==========================================================
+       NAVIGATION
+    ========================================================== */
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 60px;
+      background: rgba(26,26,26,0.94);
+      backdrop-filter: blur(8px);
+    }
+
+    nav::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 60px; right: 60px;
+      height: 1px;
+      background: var(--border);
+      opacity: 0;
+      animation: fadeIn 1s 1s forwards;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      opacity: 0;
+      animation: slideDown 0.8s 0.3s forwards;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s;
+      opacity: 0;
+      animation: slideDown 0.8s forwards;
+    }
+
+    .nav-links li:nth-child(1) a { animation-delay: 0.4s; }
+    .nav-links li:nth-child(2) a { animation-delay: 0.5s; }
+    .nav-links li:nth-child(3) a { animation-delay: 0.6s; }
+    .nav-links a:hover           { color: var(--accent); }
+
+    /* Hamburger button (mobile only) */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+      transition: all 0.3s;
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 120px 60px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Large ghost text in the background */
+    .hero-bg-text {
+      position: absolute;
+      top: 50%;
+      left: -20px;
+      transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(140px, 22vw, 340px);
+      color: transparent;
+      -webkit-text-stroke: 1px #2e2e2e;
+      line-height: 1;
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+      animation: slowDrift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes slowDrift {
+      from { transform: translateY(-50%) translateX(0); }
+      to   { transform: translateY(-50%) translateX(-30px); }
+    }
+
+    .hero-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: slideUp 0.8s 0.8s forwards;
+    }
+
+    .hero-headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 10vw, 160px);
+      line-height: 0.9;
+      color: var(--white);
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: slideUp 0.9s 1s forwards;
+    }
+    .hero-headline span { color: var(--accent); }
+
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 17px);
+      color: var(--muted);
+      max-width: 460px;
+      line-height: 1.6;
+      opacity: 0;
+      animation: slideUp 0.8s 1.2s forwards;
+    }
+
+    .hero-cta {
+      display: inline-block;
+      margin-top: 44px;
+      padding: 16px 40px;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.3s;
+      opacity: 0;
+      animation: slideUp 0.8s 1.4s forwards;
+      align-self: flex-start;
+    }
+    .hero-cta:hover { background: var(--accent2); transform: translateY(-2px); }
+
+    /* Scroll indicator on the right side */
+    .hero-scroll {
+      position: absolute;
+      right: 60px;
+      bottom: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      animation: fadeIn 1s 2s forwards;
+    }
+    .hero-scroll span {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      writing-mode: vertical-rl;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      top: -100%; left: 0;
+      width: 100%; height: 100%;
+      background: var(--accent);
+      animation: scrollAnim 2s ease-in-out 2s infinite;
+    }
+
+    @keyframes scrollAnim {
+      0%   { top: -100%; }
+      100% { top: 100%; }
+    }
+
+
+    /* ==========================================================
+       MARQUEE STRIP
+    ========================================================== */
+
+    .marquee-wrap {
+      background: var(--accent);
+      padding: 13px 0;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 60px;
+      white-space: nowrap;
+      animation: marquee 18s linear infinite;
+    }
+    .marquee-track span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 3px;
+      color: var(--bg);
+    }
+    .marquee-track .dot { opacity: 0.4; }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+
+    /* ==========================================================
+       GENERIC SECTION STYLES
+    ========================================================== */
+
+    section { padding: 100px 60px; }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 60px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      max-width: 60px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+
+    /* ==========================================================
+       ABOUT
+    ========================================================== */
+
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .about-headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 6vw, 90px);
+      line-height: 0.95;
+      color: var(--white);
+    }
+    .about-headline span { color: var(--accent); }
+
+    .about-right p {
+      font-size: clamp(15px, 1.5vw, 17px);
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+    .about-right p strong { color: var(--text); font-weight: 700; }
+
+    /* Stats 2×2 grid */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      margin-top: 52px;
+    }
+
+    .stat {
+      padding: 28px;
+      border: 1px solid var(--border);
+    }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 4vw, 56px);
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+
+    /* ==========================================================
+       WORK SLIDER
+    ========================================================== */
+
+    #work { padding-bottom: 0; }
+
+    /* Horizontally scrollable row of cards */
+    .slider-track {
+      display: flex;
+      gap: 2px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      cursor: grab;
+      user-select: none;
+    }
+    .slider-track::-webkit-scrollbar { display: none; }
+    .slider-track.is-dragging        { cursor: grabbing; }
+
+
+    /* ==========================================================
+       PROJECT CARD
+       — 16:9 aspect ratio to match a typical website screenshot
+       — no scale-up hover effect on the background image
+    ========================================================== */
+
+    .project-card {
+      flex: 0 0 calc(50% - 1px);
+      aspect-ratio: 16 / 9;       /* website-proportioned */
+      position: relative;
+      overflow: hidden;
+      display: block;
+      background: var(--surface);
+      text-decoration: none;
+      scroll-snap-align: start;
+      -webkit-user-drag: none;
+    }
+
+    /* Background image layer — NO scale animation */
+    .project-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.55)),
+        var(--project-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      /* transition removed — no scale-up on hover */
+    }
+
+    /* Subtle texture pattern (dots / grid / diagonal / soft-dots) */
+    .project-pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background-size: 40px 40px;
+      transition: opacity 0.4s;
+    }
+    .project-card:hover .project-pattern { opacity: 0.08; }
+
+    /* Text content pinned to the bottom */
+    .project-content {
+      position: absolute;
+      inset: 0;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .project-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .project-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      line-height: 1;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .project-type {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    /* Arrow icon in the top-right corner */
+    .project-arrow {
+      position: absolute;
+      top: 28px; right: 28px;
+      width: 40px; height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.3s;
+    }
+    .project-card:hover .project-arrow {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+      transform: rotate(45deg);
+    }
+
+    /* Pattern variants */
+    .project-card[data-pattern="dots"]      .project-pattern { background-image: radial-gradient(var(--accent) 1px, transparent 1px); }
+    .project-card[data-pattern="grid"]      .project-pattern { background-image: linear-gradient(var(--accent) 1px, transparent 1px), linear-gradient(90deg, var(--accent) 1px, transparent 1px); }
+    .project-card[data-pattern="diagonal"]  .project-pattern { background-image: repeating-linear-gradient(45deg, var(--accent) 0, var(--accent) 1px, transparent 0, transparent 50%); background-size: 20px 20px; }
+    .project-card[data-pattern="soft-dots"] .project-pattern { background-image: radial-gradient(circle, var(--accent) 1px, transparent 1px); background-size: 30px 30px; }
+
+
+    /* ==========================================================
+       SLIDER CONTROLS (below the track)
+    ========================================================== */
+
+    .slider-controls {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 20px 60px 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .slider-dots { display: flex; gap: 6px; align-items: center; }
+
+    .slider-dot {
+      width: 20px; height: 2px;
+      background: var(--border);
+      border: none; padding: 0;
+      cursor: pointer;
+      transition: background 0.3s, width 0.3s;
+      flex-shrink: 0;
+    }
+    .slider-dot.active { background: var(--accent); width: 36px; }
+
+    .slider-counter {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .slider-arrows { display: flex; gap: 2px; }
+
+    .slider-arrow {
+      width: 44px; height: 44px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--muted);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+      font-family: inherit;
+    }
+    .slider-arrow:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+
+
+    /* ==========================================================
+       PROCESS
+    ========================================================== */
+
+    #process { background: var(--bg2); }
+
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+
+    .process-step {
+      padding: 40px 28px;
+      border: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+    .process-step:hover { background: var(--surface); }
+
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 16px;
+      transition: color 0.3s;
+    }
+    .process-step:hover .step-num { color: var(--accent); }
+
+    .step-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+
+    /* ==========================================================
+       CONTACT
+    ========================================================== */
+
+    #contact {
+      text-align: center;
+      padding: 140px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ghost 'HELLO' background text */
+    #contact::before {
+      content: 'HELLO';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(80px, 18vw, 260px);
+      color: transparent;
+      -webkit-text-stroke: 1px #272727;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .contact-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .contact-headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(56px, 9vw, 140px);
+      line-height: 0.9;
+      color: var(--white);
+      margin-bottom: 44px;
+      position: relative;
+    }
+
+    .contact-email {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(13px, 2vw, 20px);
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      transition: border-color 0.3s, color 0.3s;
+      position: relative;
+    }
+    .contact-email:hover { color: var(--accent2); border-color: var(--accent2); }
+
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 4px;
+      color: var(--accent);
+    }
+
+    .footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+
+    .footer-links { display: flex; gap: 28px; list-style: none; }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+
+
+    /* ==========================================================
+       KEYFRAME ANIMATIONS
+    ========================================================== */
+
+    @keyframes slideUp   { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
+
+
+    /* ==========================================================
+       SCROLL REVEAL UTILITY
+    ========================================================== */
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal.visible          { opacity: 1; transform: none; }
+    .reveal-delay-1          { transition-delay: 0.1s; }
+    .reveal-delay-2          { transition-delay: 0.2s; }
+    .reveal-delay-3          { transition-delay: 0.3s; }
+    .reveal-delay-4          { transition-delay: 0.4s; }
+
+
+    /* ==========================================================
+       RESPONSIVE — Tablet
+    ========================================================== */
+
+    @media (max-width: 1024px) {
+      nav, footer          { padding: 22px 36px; }
+      nav::after           { left: 36px; right: 36px; }
+      section              { padding: 80px 36px; }
+      .hero                { padding: 120px 36px 72px; }
+      #contact             { padding: 100px 36px; }
+      .hero-scroll         { right: 36px; bottom: 60px; }
+      .about               { gap: 48px; }
+      .process-grid        { grid-template-columns: 1fr 1fr; }
+      .slider-controls     { padding: 18px 36px 36px; }
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE — Mobile
+    ========================================================== */
+
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      nav::after { display: none; }
+
+      /* Mobile slide-in drawer */
+      .nav-links {
+        position: fixed;
+        top: 0; right: -100%;
+        width: 75%; max-width: 300px; height: 100vh;
+        background: var(--surface);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+        transition: right 0.4s cubic-bezier(0.22,1,0.36,1);
+        z-index: 200;
+      }
+      .nav-links.open { right: 0; }
+
+      /* Override entry animations so links are always visible in drawer */
+      .nav-links a { opacity: 1 !important; animation: none !important; font-size: 13px; }
+
+      .nav-toggle { display: flex; z-index: 300; }
+
+      /* Hamburger → X */
+      .nav-toggle.open span:nth-child(1) { transform: rotate(45deg)  translate(4px, 4px); }
+      .nav-toggle.open span:nth-child(2) { opacity: 0; }
+      .nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); }
+
+      .hero          { padding: 100px 24px 64px; min-height: 100svh; }
+      .hero-scroll   { display: none; }
+      section        { padding: 64px 24px; }
+      #work          { padding-bottom: 0; }
+      #process       { padding: 64px 24px; }
+      #contact       { padding: 80px 24px; }
+      footer         { padding: 24px; flex-direction: column; align-items: flex-start; gap: 20px; }
+
+      .about         { grid-template-columns: 1fr; gap: 40px; }
+      .stats         { grid-template-columns: 1fr 1fr; }
+
+      /* Nearly full-width cards for swipe feel */
+      .project-card  { flex: 0 0 88vw; }
+
+      .process-grid  { grid-template-columns: 1fr; }
+      .process-step  { padding: 32px 24px; }
+      .section-label { margin-bottom: 36px; }
+      .slider-controls { padding: 16px 24px 32px; }
+      .slider-counter  { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .stats       { grid-template-columns: 1fr; }
+      .hero-cta    { width: 100%; text-align: center; }
+      .footer-links { flex-wrap: wrap; gap: 16px; }
+      .project-card { flex: 0 0 94vw; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor elements -->
+  <div class="cursor"      id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+
+  <!-- ======================================================
+       NAVIGATION
+  ====================================================== -->
+  <nav>
+    <a href="#" class="nav-logo">GRVE</a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+
+  <!-- ======================================================
+       HERO
+  ====================================================== -->
+  <section class="hero">
+    <div class="hero-bg-text">DESIGN</div>
+    <div class="hero-tag">Available for projects in 2026</div>
+    <h1 class="hero-headline">Web<br><span>Design</span><br>That Works.</h1>
+    <p class="hero-sub">We make websites that are efficient, minimal, and convert clients.</p>
+    <a href="#contact" class="hero-cta">Start a project</a>
+
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+
+  <!-- ======================================================
+       MARQUEE STRIP
+  ====================================================== -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>Web Design</span><span class="dot">&#9670;</span>
+      <span>Conversion Focused</span><span class="dot">&#9670;</span>
+      <span>Minimal</span><span class="dot">&#9670;</span>
+      <span>Fast</span><span class="dot">&#9670;</span>
+      <span>Clean Code</span><span class="dot">&#9670;</span>
+      <span>No Jargon</span><span class="dot">&#9670;</span>
+      <span>Results First</span><span class="dot">&#9670;</span>
+      <!-- Duplicate for seamless loop -->
+      <span>Web Design</span><span class="dot">&#9670;</span>
+      <span>Conversion Focused</span><span class="dot">&#9670;</span>
+      <span>Minimal</span><span class="dot">&#9670;</span>
+      <span>Fast</span><span class="dot">&#9670;</span>
+      <span>Clean Code</span><span class="dot">&#9670;</span>
+      <span>No Jargon</span><span class="dot">&#9670;</span>
+      <span>Results First</span><span class="dot">&#9670;</span>
+    </div>
+  </div>
+
+
+  <!-- ======================================================
+       ABOUT
+  ====================================================== -->
+  <section>
+    <div class="about">
+
+      <div class="about-left reveal">
+        <div class="section-label">About</div>
+        <h2 class="about-headline">Simple<br>always<br><span>wins.</span></h2>
+      </div>
+
+      <div class="about-right reveal reveal-delay-2">
+        <p>Good design doesn't need to announce itself. It just <strong>works</strong> — clearly without getting in the way.</p>
+        <p>GRVE exists because most websites try to do too much. We strip everything back to what matters: a clear message, a fast page, and one obvious next step for your visitor.</p>
+
+        <div class="stats">
+          <div class="stat reveal reveal-delay-1"><div class="stat-num">3</div><div class="stat-label">Week delivery</div></div>
+          <div class="stat reveal reveal-delay-2"><div class="stat-num">0</div><div class="stat-label">Unnecessary elements</div></div>
+          <div class="stat reveal reveal-delay-3"><div class="stat-num">100%</div><div class="stat-label">Conversion focused</div></div>
+          <div class="stat reveal reveal-delay-4"><div class="stat-num">1</div><div class="stat-label">Rule: keep it simple</div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ======================================================
+       WORK — project slider
+  ====================================================== -->
+  <section id="work">
+    <div class="section-label reveal">Selected Work</div>
+
+    <div class="slider-outer">
+      <div class="slider-track" id="sliderTrack">
+
+        <a href="L!mE.html"
+           class="project-card"
+           data-pattern="dots"
+           style="--project-image: url('images/L!mE.png');">
+          <div class="project-bg"></div>
+          <div class="project-pattern"></div>
+          <div class="project-content">
+            <div class="project-num">01</div>
+            <div class="project-name">LimE</div>
+            <div class="project-type">SaaS Landing Page</div>
+          </div>
+          <div class="project-arrow">&#8599;</div>
+        </a>
+
+        <a href="Forma.html"
+           class="project-card"
+           data-pattern="grid"
+           style="--project-image: url('images/Forma.png');">
+          <div class="project-bg"></div>
+          <div class="project-pattern"></div>
+          <div class="project-content">
+            <div class="project-num">02</div>
+            <div class="project-name">Forma</div>
+            <div class="project-type">Architecture Studio</div>
+          </div>
+          <div class="project-arrow">&#8599;</div>
+        </a>
+
+        <a href="Vord.html"
+           class="project-card"
+           data-pattern="diagonal"
+           style="--project-image: url('images/Vord.png');">
+          <div class="project-bg"></div>
+          <div class="project-pattern"></div>
+          <div class="project-content">
+            <div class="project-num">03</div>
+            <div class="project-name">VORD</div>
+            <div class="project-type">Clothing</div>
+          </div>
+          <div class="project-arrow">&#8599;</div>
+        </a>
+
+        <a href="reSpawn.html"
+           class="project-card"
+           data-pattern="soft-dots"
+           style="--project-image: url('images/respawn.png');">
+          <div class="project-bg"></div>
+          <div class="project-pattern"></div>
+          <div class="project-content">
+            <div class="project-num">04</div>
+            <div class="project-name">Respawn</div>
+            <div class="project-type">E-Commerce/Gaming</div>
+          </div>
+          <div class="project-arrow">&#8599;</div>
+        </a>
+
+      </div><!-- /slider-track -->
+
+      <!-- Slider controls: dots, counter, prev/next arrows -->
+      <div class="slider-controls">
+        <div class="slider-dots" id="sliderDots">
+          <button class="slider-dot active" data-index="0"></button>
+          <button class="slider-dot"        data-index="1"></button>
+          <button class="slider-dot"        data-index="2"></button>
+          <button class="slider-dot"        data-index="3"></button>
+        </div>
+
+        <div class="slider-counter" id="sliderCounter">01 / 04</div>
+
+        <div class="slider-arrows">
+          <button class="slider-arrow" id="sliderPrev">&#8592;</button>
+          <button class="slider-arrow" id="sliderNext">&#8594;</button>
+        </div>
+      </div>
+
+    </div><!-- /slider-outer -->
+  </section>
+
+
+  <!-- ======================================================
+       PROCESS
+  ====================================================== -->
+  <section id="process">
+    <div class="section-label reveal">How it works</div>
+
+    <div class="process-grid">
+      <div class="process-step reveal">
+        <div class="step-num">01</div>
+        <div class="step-title">Discovery</div>
+        <div class="step-desc">Fill out a short brief. We get to know your business, your goals, and what needs fixing.</div>
+      </div>
+      <div class="process-step reveal reveal-delay-1">
+        <div class="step-num">02</div>
+        <div class="step-title">Design</div>
+        <div class="step-desc">Clean mockups in a week. No fluff, no endless revisions. You approve, we build.</div>
+      </div>
+      <div class="process-step reveal reveal-delay-2">
+        <div class="step-num">03</div>
+        <div class="step-title">Build</div>
+        <div class="step-desc">Pixel-perfect code. Fast load times. Works on every device and browser.</div>
+      </div>
+      <div class="process-step reveal reveal-delay-3">
+        <div class="step-num">04</div>
+        <div class="step-title">Launch</div>
+        <div class="step-desc">Live in under 3 weeks. We hand over the keys and you are in full control.</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ======================================================
+       CONTACT
+  ====================================================== -->
+  <section id="contact">
+    <div class="contact-label reveal">Ready when you are</div>
+    <h2 class="contact-headline reveal reveal-delay-1">Let's<br>talk.</h2>
+    <a href="https://www.instagram.com/grve.dev?utm_source=qr&igsh=cGJiZ3l6MGp6aDk4" class="contact-email reveal reveal-delay-2">grve.dev</a>
+  </section>
+
+
+  <!-- ======================================================
+       FOOTER
+  ====================================================== -->
+  <footer>
+    <div class="footer-logo">GRVE</div>
+    <span class="footer-copy">&#169; 2025 GRVE. All rights reserved.</span>
+    <ul class="footer-links">
+      
+    </ul>
+  </footer>
+
+
+  <!-- ======================================================
+       JAVASCRIPT
+  ====================================================== -->
+  <script>
+  (function () {
+
+    // --------------------------------------------------------
+    // Custom cursor — crosshair dot + lagging square ring
+    // --------------------------------------------------------
+    var cursor    = document.getElementById('cursor');
+    var ring      = document.getElementById('cursorRing');
+    var mouseX    = 0, mouseY = 0;   // actual pointer position
+    var ringX     = 0, ringY  = 0;   // ring follows with lag
+
+    if (window.matchMedia('(hover: hover)').matches) {
+
+      // Snap the crosshair directly to the pointer
+      document.addEventListener('mousemove', function (e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.left = mouseX + 'px';
+        cursor.style.top  = mouseY + 'px';
+      });
+
+      // Animate the ring with an ease-follow loop
+      (function loop() {
+        ringX += (mouseX - ringX) * 0.12;
+        ringY += (mouseY - ringY) * 0.12;
+        ring.style.left = ringX + 'px';
+        ring.style.top  = ringY + 'px';
+        requestAnimationFrame(loop);
+      })();
+
+      // Expand ring when hovering links / buttons
+      var hoverTargets = document.querySelectorAll('a, button');
+      hoverTargets.forEach(function (el) {
+        el.addEventListener('mouseenter', function () { document.body.classList.add('cursor-hover'); });
+        el.addEventListener('mouseleave', function () { document.body.classList.remove('cursor-hover'); });
+      });
+    }
+
+
+    // --------------------------------------------------------
+    // Mobile nav drawer (hamburger → slide-in)
+    // --------------------------------------------------------
+    var toggle   = document.getElementById('navToggle');
+    var navLinks = document.getElementById('navLinks');
+
+    toggle.addEventListener('click', function () {
+      var isOpen = navLinks.classList.toggle('open');
+      toggle.classList.toggle('open', isOpen);
+    });
+
+    // Close drawer when a link is tapped
+    navLinks.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        navLinks.classList.remove('open');
+        toggle.classList.remove('open');
+      });
+    });
+
+
+    // --------------------------------------------------------
+    // Scroll-reveal — fade + slide up when elements enter viewport
+    // --------------------------------------------------------
+    var revealEls = document.querySelectorAll('.reveal');
+
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    revealEls.forEach(function (el) { revealObserver.observe(el); });
+
+
+    // --------------------------------------------------------
+    // Work slider — dots, arrows, drag-to-scroll, touch swipe
+    // --------------------------------------------------------
+    var track   = document.getElementById('sliderTrack');
+    var dots    = Array.from(document.querySelectorAll('.slider-dot'));
+    var counter = document.getElementById('sliderCounter');
+    var prevBtn = document.getElementById('sliderPrev');
+    var nextBtn = document.getElementById('sliderNext');
+    var cards   = Array.from(track.querySelectorAll('.project-card'));
+    var total   = cards.length;
+    var current = 0;
+
+    function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+    function cardWidth() {
+      return cards[0].offsetWidth + 2; // 2px gap
+    }
+
+    // Update dots and counter to reflect the active index
+    function syncUI(idx) {
+      current = idx;
+      dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
+      counter.textContent = pad(idx + 1) + ' / ' + pad(total);
+    }
+
+    // Scroll the track to a specific card index
+    function goTo(idx) {
+      idx = Math.max(0, Math.min(idx, total - 1));
+      track.scrollTo({ left: cardWidth() * idx, behavior: 'smooth' });
+      syncUI(idx);
+    }
+
+    // Arrow buttons
+    prevBtn.addEventListener('click', function () { goTo(current - 1); });
+    nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+    // Dot buttons
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        goTo(parseInt(dot.dataset.index, 10));
+      });
+    });
+
+    // Mouse drag support
+    var dragStartX      = 0;
+    var dragScrollStart = 0;
+    var didDrag         = false;
+
+    track.addEventListener('mousedown', function (e) {
+      dragStartX      = e.pageX;
+      dragScrollStart = track.scrollLeft;
+      didDrag         = false;
+      track.classList.add('is-dragging');
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!track.classList.contains('is-dragging')) return;
+      var delta = e.pageX - dragStartX;
+      if (Math.abs(delta) > 4) didDrag = true;
+      track.scrollLeft = dragScrollStart - delta;
+    });
+
+    document.addEventListener('mouseup', function () {
+      if (!track.classList.contains('is-dragging')) return;
+      track.classList.remove('is-dragging');
+      // Snap to the nearest card
+      var idx = Math.round(track.scrollLeft / cardWidth());
+      goTo(Math.max(0, Math.min(idx, total - 1)));
+    });
+
+    // Prevent card navigation if the user was dragging
+    cards.forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        if (didDrag) { e.preventDefault(); didDrag = false; }
+      });
+    });
+
+    // Keep dots in sync when scrolling via trackpad or touch
+    var scrollSettleTimer;
+    track.addEventListener('scroll', function () {
+      clearTimeout(scrollSettleTimer);
+      scrollSettleTimer = setTimeout(function () {
+        var idx = Math.round(track.scrollLeft / cardWidth());
+        syncUI(Math.max(0, Math.min(idx, total - 1)));
+      }, 80);
+    });
+
+  })();
+  </script>
+
+</body>
+</html>
