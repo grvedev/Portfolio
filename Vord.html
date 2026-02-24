@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VORD Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0A0A0A;
+      --white: #F8F8F6;
+      --gray:  #ABABAB;
+      --line:  #E0E0DC;
+      --accent:#C8B89A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--white);
+      color: var(--black);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* CURSOR */
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--black);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--black);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: width 0.3s, height 0.3s;
+      transform: translate(-50%, -50%);
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem 4vw;
+      background: rgba(248,248,246,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+      color: var(--black);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 2.5rem;
+    }
+
+    .nav-links a {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+      opacity: 0.45;
+      transition: opacity 0.2s;
+    }
+
+    .nav-links a:hover { opacity: 1; }
+
+    .nav-btn {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      padding: 0.65rem 1.5rem;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .nav-btn:hover { background: #333; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 4vw 4rem;
+      position: relative;
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+
+
+
+
+    .hero-top {
+      position: absolute;
+      top: 7rem;
+      left: 4vw;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      z-index: 2;
+    }
+
+    .hero-tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .hero-established {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .hero-number {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(7rem, 18vw, 18rem);
+      font-weight: 800;
+      line-height: 0.88;
+      letter-spacing: -0.04em;
+      color: var(--black);
+      user-select: none;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4vw;
+      align-items: end;
+      border-top: 1px solid var(--line);
+      padding-top: 2rem;
+      margin-top: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--black);
+      opacity: 0.55;
+      max-width: 440px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      gap: 1.5rem;
+    }
+
+    .btn-primary {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      padding: 1rem 2.5rem;
+      text-decoration: none;
+      transition: background 0.2s;
+      display: inline-block;
+    }
+
+    .btn-primary:hover { background: #222; }
+
+    .btn-ghost {
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+      opacity: 0.35;
+      transition: opacity 0.2s;
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+    }
+
+    .btn-ghost:hover { opacity: 1; }
+
+    /* MARQUEE */
+    .marquee-wrap {
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      padding: 1.2rem 0;
+      background: var(--black);
+    }
+
+    .marquee-track {
+      display: flex;
+      animation: marquee 28s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee-item {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      padding: 0 3rem;
+      flex-shrink: 0;
+    }
+
+    .marquee-dot { color: var(--accent); }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .stat-item {
+      padding: 4rem 4vw;
+      border-right: 1px solid var(--line);
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--black);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-top: 0.75rem;
+    }
+
+    /* COLLECTIONS */
+    .practice {
+      padding: 6rem 4vw;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4rem;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 0.6rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: var(--black);
+    }
+
+    .practice-list { list-style: none; }
+
+    .practice-item {
+      display: grid;
+      grid-template-columns: 4rem 1fr 1fr auto;
+      align-items: center;
+      gap: 2rem;
+      padding: 1.8rem 0;
+      border-top: 1px solid var(--line);
+      transition: padding-left 0.3s;
+      cursor: default;
+    }
+
+    .practice-item:last-child { border-bottom: 1px solid var(--line); }
+    .practice-item:hover { padding-left: 0.75rem; }
+    .practice-item:hover .practice-arrow { transform: translateX(6px); opacity: 0.8; }
+
+    .practice-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+    }
+
+    .practice-name {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.1rem, 2vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--black);
+    }
+
+    .practice-desc {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--gray);
+    }
+
+    .practice-arrow {
+      font-size: 1.2rem;
+      color: var(--black);
+      transition: transform 0.3s, opacity 0.3s;
+      opacity: 0.2;
+    }
+
+    /* ABOUT */
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .about-left {
+      padding: 6rem 4vw;
+      border-right: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* About section image behind text */
+    .about-img {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 55%;
+      height: 70%;
+      overflow: hidden;
+      opacity: 0.12;
+    }
+
+    .about-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(100%);
+    }
+
+    .about-big-text {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--black);
+      margin-top: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .about-big-text em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--gray);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .about-right {
+      padding: 6rem 4vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .about-body {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--black);
+      opacity: 0.55;
+      max-width: 400px;
+    }
+
+    .about-body p + p { margin-top: 1.25rem; }
+
+    .about-values { margin-top: 3rem; }
+
+    .about-value {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-top: 1px solid var(--line);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .about-value span {
+      color: var(--gray);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      font-weight: 300;
+    }
+
+    /* NEW DROPS */
+    .team {
+      padding: 6rem 4vw;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      margin-top: 4rem;
+      background: var(--line);
+    }
+
+    .team-card {
+      background: var(--white);
+      padding: 0 0 2rem;
+      transition: background 0.25s;
+      cursor: default;
+      overflow: hidden;
+    }
+
+    .team-card:hover { background: var(--black); }
+    .team-card:hover .team-name { color: var(--white); }
+    .team-card:hover .team-role { color: #666; }
+    .team-card:hover .team-bar { background: var(--accent); }
+    .team-card:hover .team-img img { transform: scale(1.05); }
+
+    .team-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .team-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(15%);
+      transition: transform 0.5s ease;
+    }
+
+    .team-card-body { padding: 0 1.5rem; }
+
+    .team-bar {
+      width: 24px; height: 2px;
+      background: var(--black);
+      margin-bottom: 1rem;
+      transition: background 0.25s;
+    }
+
+    .team-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 0.3rem;
+      transition: color 0.25s;
+    }
+
+    .team-role {
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+      transition: color 0.25s;
+    }
+
+    /* CONTACT */
+    .contact {
+      padding: 8rem 4vw;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8vw;
+      align-items: end;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .contact-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 5.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      color: var(--black);
+    }
+
+    .contact-heading em {
+      display: block;
+      font-style: italic;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      color: var(--gray);
+    }
+
+    .contact-form { display: flex; flex-direction: column; gap: 0; }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--line);
+      padding: 1.2rem 0;
+      transition: border-color 0.2s;
+    }
+
+    .form-field:focus-within { border-color: var(--black); }
+
+    .form-field label {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-field input,
+    .form-field textarea {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--black);
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+    }
+
+    .form-field textarea { min-height: 80px; }
+
+    .form-submit {
+      margin-top: 2rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      border: none;
+      padding: 1.1rem 2.5rem;
+      cursor: none;
+      align-self: flex-start;
+      transition: background 0.2s;
+    }
+
+    .form-submit:hover { background: #333; }
+
+    /* FOOTER */
+    footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .footer-col {
+      padding: 3rem 4vw;
+      border-right: 1px solid var(--line);
+    }
+
+    .footer-col:last-child { border-right: none; }
+
+    .footer-col-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--black);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-tag { font-size: 0.85rem; color: var(--gray); }
+
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .footer-links a {
+      font-size: 0.88rem;
+      color: var(--black);
+      text-decoration: none;
+      opacity: 0.45;
+      transition: opacity 0.2s;
+    }
+
+    .footer-links a:hover { opacity: 1; }
+
+    .footer-bottom {
+      padding: 1.5rem 4vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-bottom p { font-size: 0.75rem; color: var(--gray); }
+
+    /* REVEAL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.2s; }
+
+    /* RESPONSIVE */
+    @media (max-width: 960px) {
+      .practice-item { grid-template-columns: 3rem 1fr auto; }
+      .practice-desc { display: none; }
+      .about { grid-template-columns: 1fr; }
+      .about-left { border-right: none; border-bottom: 1px solid var(--line); }
+      .team-grid { grid-template-columns: 1fr 1fr; }
+      .contact { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .stat-item { border-right: none; border-bottom: 1px solid var(--line); }
+      footer { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .hero-bottom { grid-template-columns: 1fr; gap: 2rem; }
+      .hero-cta-group { justify-content: flex-start; }
+      .nav-links { display: none; }
+      .team-grid { grid-template-columns: 1fr; }
+      footer { grid-template-columns: 1fr; }
+      .footer-col { border-right: none; border-bottom: 1px solid var(--line); }
+      .footer-bottom { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">VORD</a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#collections">Collections</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#drops">New Drops</a></li>
+      </ul>
+      <a href="#newsletter" class="nav-btn">Shop Now</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+
+
+    <div class="hero-top">
+      <span class="hero-tag">Ready to Wear</span>
+      <span class="hero-established">SS 2025 &nbsp;&nbsp; New York</span>
+    </div>
+
+    <div class="hero-number">VORD</div>
+
+    <div class="hero-bottom">
+      <p class="hero-desc">Clothes built for real life. Precise cuts, honest materials, and a silhouette that holds its shape for years.</p>
+      <div class="hero-cta-group">
+        <a href="#about" class="btn-ghost">Our Story</a>
+        <a href="#collections" class="btn-primary">Shop the Collection</a>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="marquee-item">Outerwear</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Knitwear</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Tailoring</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Denim</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Accessories</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Footwear</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Outerwear</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Knitwear</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Tailoring</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Denim</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Accessories</span><span class="marquee-item marquee-dot">*</span>
+      <span class="marquee-item">Footwear</span><span class="marquee-item marquee-dot">*</span>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-item reveal">
+      <div class="stat-num">12</div>
+      <div class="stat-label">Seasons Released</div>
+    </div>
+    <div class="stat-item reveal reveal-d1">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Natural Fabrics</div>
+    </div>
+    <div class="stat-item reveal reveal-d2">
+      <div class="stat-num">42</div>
+      <div class="stat-label">Countries Shipped</div>
+    </div>
+  </div>
+
+  <!-- COLLECTIONS -->
+  <section class="practice reveal" id="collections">
+    <div class="section-header">
+      <div>
+        <p class="section-label">What We Make</p>
+        <h2 class="section-title">Collections</h2>
+      </div>
+    </div>
+    <ul class="practice-list">
+      <li class="practice-item">
+        <span class="practice-num">01</span>
+        <span class="practice-name">Outerwear</span>
+        <span class="practice-desc">Coats and jackets cut to last a decade, not a season.</span>
+        <span class="practice-arrow">&#x2192;</span>
+      </li>
+      <li class="practice-item">
+        <span class="practice-num">02</span>
+        <span class="practice-name">Knitwear</span>
+        <span class="practice-desc">Merino and lambswool knits in weights for every climate.</span>
+        <span class="practice-arrow">&#x2192;</span>
+      </li>
+      <li class="practice-item">
+        <span class="practice-num">03</span>
+        <span class="practice-name">Tailoring</span>
+        <span class="practice-desc">Relaxed structured suiting that moves the way you do.</span>
+        <span class="practice-arrow">&#x2192;</span>
+      </li>
+      <li class="practice-item">
+        <span class="practice-num">04</span>
+        <span class="practice-name">Denim</span>
+        <span class="practice-desc">Japanese selvedge in three fits. Nothing else needed.</span>
+        <span class="practice-arrow">&#x2192;</span>
+      </li>
+      <li class="practice-item">
+        <span class="practice-num">05</span>
+        <span class="practice-name">Accessories</span>
+        <span class="practice-desc">Belts, bags, and scarves from the same cloth as our clothes.</span>
+        <span class="practice-arrow">&#x2192;</span>
+      </li>
+      <li class="practice-item">
+        <span class="practice-num">06</span>
+        <span class="practice-name">Footwear</span>
+        <span class="practice-desc">Leather shoes and boots on Goodyear-welted soles.</span>
+        <span class="practice-arrow">&#x2192;</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-left reveal">
+      <div class="about-img">
+        <img
+          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80&auto=format&fit=crop"
+          alt=""
+          aria-hidden="true"
+        />
+      </div>
+      <p class="section-label">The Studio</p>
+      <h2 class="about-big-text">
+        Made to last.<br />
+        <em>Designed to disappear.</em>
+      </h2>
+    </div>
+    <div class="about-right reveal reveal-d1">
+      <div class="about-body">
+        <p>VORD started with a single problem: most clothes fall apart before they get interesting. We set out to make things that age well, fit well, and stay out of your way.</p>
+        <p>Every piece is cut in our New York studio, sewn from fabrics we source directly, and checked by hand before it ships. No shortcuts, no licensing, no trend chasing.</p>
+      </div>
+      <div class="about-values">
+        <div class="about-value">Natural fabrics only <span>Always</span></div>
+        <div class="about-value">Two drops per year <span>SS &amp; AW</span></div>
+        <div class="about-value">No sales, ever <span>Full price only</span></div>
+        <div class="about-value">Free repairs for life <span>Guaranteed</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW DROPS -->
+  <section class="team reveal" id="drops">
+    <div class="section-header">
+      <div>
+        <p class="section-label">Just Arrived</p>
+        <h2 class="section-title">New Drops</h2>
+      </div>
+    </div>
+    <div class="team-grid">
+
+      <div class="team-card">
+        <div class="team-img">
+          <img
+            src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80&auto=format&fit=crop"
+            alt="The Field Coat"
+          />
+        </div>
+        <div class="team-card-body">
+          <div class="team-bar"></div>
+          <div class="team-name">The Field Coat</div>
+          <div class="team-role">Outerwear &nbsp;/ &nbsp;$420</div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-img">
+          <img
+            src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=600&q=80&auto=format&fit=crop"
+            alt="Rib Crewneck"
+          />
+        </div>
+        <div class="team-card-body">
+          <div class="team-bar"></div>
+          <div class="team-name">Rib Crewneck</div>
+          <div class="team-role">Knitwear &nbsp;/ &nbsp;$185</div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-img">
+          <img
+            src="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=600&q=80&auto=format&fit=crop"
+            alt="Wide Trouser"
+          />
+        </div>
+        <div class="team-card-body">
+          <div class="team-bar"></div>
+          <div class="team-name">Wide Trouser</div>
+          <div class="team-role">Tailoring &nbsp;/ &nbsp;$240</div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-img">
+          <img
+            src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80&auto=format&fit=crop"
+            alt="Selvedge 01"
+          />
+        </div>
+        <div class="team-card-body">
+          <div class="team-bar"></div>
+          <div class="team-name">Selvedge 01</div>
+          <div class="team-role">Denim &nbsp;/ &nbsp;$280</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="contact reveal" id="newsletter">
+    <div>
+      <p class="section-label">Stay Close</p>
+      <h2 class="contact-heading">
+        First to know<br />
+        <em>every drop.</em>
+      </h2>
+    </div>
+    <form class="contact-form" onsubmit="return false;">
+      <div class="form-field">
+        <label>Full Name</label>
+        <input type="text" placeholder="Your name" />
+      </div>
+      <div class="form-field">
+        <label>Email Address</label>
+        <input type="email" placeholder="your@email.com" />
+      </div>
+      <div class="form-field">
+        <label>What are you most interested in?</label>
+        <input type="text" placeholder="Outerwear, Denim, Knitwear..." />
+      </div>
+      <div class="form-field">
+        <label>Anything else?</label>
+        <textarea placeholder="Tell us what you are looking for"></textarea>
+      </div>
+      <button class="form-submit" type="submit">Subscribe</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-col">
+      <p class="footer-col-label">Brand</p>
+      <div class="footer-brand">VORD Studio</div>
+      <p class="footer-tag">Ready to Wear, New York</p>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-label">Shop</p>
+      <ul class="footer-links">
+        <li><a href="#collections">All Collections</a></li>
+        <li><a href="#drops">New Drops</a></li>
+        <li><a href="#">Archive</a></li>
+        <li><a href="#">Gift Cards</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-label">Help</p>
+      <ul class="footer-links">
+        <li><a href="#">Sizing Guide</a></li>
+        <li><a href="#">Shipping &amp; Returns</a></li>
+        <li><a href="#">Free Repairs</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-label">Studio</p>
+      <ul class="footer-links">
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Materials</a></li>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+  </footer>
+  <div class="footer-bottom">
+    <p>2025 VORD Studio Inc. All rights reserved.</p>
+    <p>Free shipping on orders over $300. Free repairs for life.</p>
+  </div>
+
+  <script>
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+    });
+
+    (function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+      requestAnimationFrame(animateRing);
+    })();
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>

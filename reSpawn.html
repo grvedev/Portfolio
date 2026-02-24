@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>reSpawn — PC Hardware</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --red: #7b2cbf;
+  --red2: #5a189a;
+  --white: #f8f5ff;
+  --white-dim: rgba(248,245,255,0.55);
+  --white-faint: rgba(248,245,255,0.12);
+  --white-border: rgba(248,245,255,0.18);
+  --black: #10002b;
+  --card-bg: rgba(123,44,191,0.08);
+  --card-hover: rgba(123,44,191,0.16);
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--red);
+  color: var(--white);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
+
+/* ======== NAV ======== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  height: 58px; display: flex; align-items: center;
+  padding: 0 32px;
+  background: var(--red);
+  border-bottom: 1px solid var(--white-border);
+}
+
+.logo {
+  font-size: 20px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--white); text-decoration: none; flex-shrink: 0;
+}
+.logo .re { opacity: 0.7; font-weight: 600; }
+
+.nav-links {
+  display: flex; list-style: none; gap: 2px; margin: 0 28px;
+}
+.nav-links a {
+  padding: 7px 14px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: var(--white-dim);
+  text-decoration: none; transition: all 0.15s;
+}
+.nav-links a:hover { color: var(--white); background: var(--white-faint); }
+
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.nav-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; background: var(--white-faint);
+  border: 1px solid var(--white-border); border-radius: 10px;
+  color: var(--white-dim); font-size: 13px; font-family: inherit; cursor: text;
+  transition: all 0.2s;
+}
+.nav-search:hover { background: rgba(255,255,255,0.16); }
+.nav-search svg { opacity: 0.5; flex-shrink: 0; }
+
+.cart-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 18px; background: var(--white); color: var(--red);
+  border: none; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  transition: all 0.18s; white-space: nowrap;
+}
+.cart-btn:hover { background: #f0f0f0; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+.cart-btn .badge {
+  background: var(--red); color: var(--white);
+  font-size: 10px; font-weight: 800; min-width: 18px; height: 18px;
+  border-radius: 9px; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+}
+
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; padding: 4px; cursor: pointer; }
+.hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; transition: all 0.22s; }
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none; position: fixed; top: 58px; inset-inline: 0;
+  background: var(--red2); border-bottom: 1px solid var(--white-border);
+  z-index: 499; padding: 16px; flex-direction: column; gap: 4px;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  padding: 14px 16px; border-radius: 10px;
+  font-size: 16px; font-weight: 600; color: var(--white);
+  text-decoration: none; transition: background 0.15s;
+}
+.mobile-menu a:hover { background: var(--white-faint); }
+.mobile-menu .m-cart-btn {
+  margin-top: 8px; padding: 14px 16px; background: var(--white);
+  color: var(--red); border: none; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: 15px; font-weight: 700; text-align: center;
+}
+
+/* ======== CART DRAWER ======== */
+.cart-overlay {
+  position: fixed; inset: 0; z-index: 800;
+  background: rgba(0,0,0,0.4);
+  opacity: 0; pointer-events: none; transition: opacity 0.28s;
+}
+.cart-overlay.open { opacity: 1; pointer-events: all; }
+.cart-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 400px; z-index: 801;
+  background: var(--white); color: var(--black);
+  transform: translateX(100%); transition: transform 0.32s cubic-bezier(0.32,0,0.15,1);
+  display: flex; flex-direction: column; border-radius: 0;
+}
+.cart-drawer.open { transform: none; }
+.cart-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.cart-head h3 { font-size: 16px; font-weight: 800; color: var(--black); }
+.cart-close { background: none; border: none; width: 32px; height: 32px; border-radius: 8px; background: #f5f5f5; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; color: #888; transition: all 0.15s; }
+.cart-close:hover { background: #ffe0e0; color: var(--red); }
+.cart-items { flex: 1; overflow-y: auto; padding: 12px; }
+.cart-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; height: 100%; color: #bbb; font-size: 14px; }
+.cart-empty-icon { font-size: 48px; }
+.cart-item { display: flex; gap: 12px; padding: 12px; border-radius: 12px; margin-bottom: 4px; background: #fafafa; }
+.cart-item-img { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; background: #eee; flex-shrink: 0; }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-cat { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #bbb; margin-bottom: 3px; }
+.cart-item-name { font-size: 14px; font-weight: 700; color: var(--black); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cart-item-price { font-size: 15px; font-weight: 800; color: var(--red); }
+.cart-item-rm { background: none; border: none; padding: 4px; cursor: pointer; color: #ccc; font-size: 18px; transition: color 0.15s; align-self: flex-start; line-height: 1; }
+.cart-item-rm:hover { color: var(--red); }
+.cart-foot { padding: 20px 24px; border-top: 1px solid rgba(0,0,0,0.08); }
+.cart-total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.ct-label { font-size: 12px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.06em; }
+.ct-val { font-size: 26px; font-weight: 800; color: var(--black); }
+.checkout-btn {
+  width: 100%; padding: 15px; background: var(--red); color: var(--white);
+  border: none; border-radius: 12px; cursor: pointer;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  transition: all 0.18s; letter-spacing: 0.01em;
+}
+.checkout-btn:hover { background: var(--red2); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,0,13,0.35); }
+
+/* ======== HERO ======== */
+.hero {
+  min-height: 100vh; padding-top: 58px;
+  display: flex; flex-direction: column;
+}
+
+.hero-top {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 56px 32px 32px;
+  position: relative; overflow: hidden;
+}
+
+/* Soft radial glow */
+.hero-top::before {
+  content: '';
+  position: absolute; top: -40%; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 600px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 28px; align-self: flex-start;
+}
+.eyebrow-pill {
+  padding: 5px 12px; background: var(--white); color: var(--red);
+  border-radius: 100px; font-size: 11px; font-weight: 800;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.eyebrow-text { font-size: 13px; font-weight: 500; color: var(--white-dim); }
+
+.hero-h1 {
+  font-size: clamp(52px, 8vw, 120px); font-weight: 800;
+  line-height: 0.95; letter-spacing: -0.04em;
+  color: var(--white); margin-bottom: 28px;
+  max-width: 900px;
+}
+.hero-h1 span { opacity: 0.35; }
+
+.hero-sub {
+  font-size: 16px; font-weight: 400; color: var(--white-dim);
+  max-width: 420px; line-height: 1.65; margin-bottom: 36px;
+}
+
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.btn-white-solid {
+  padding: 13px 26px; background: var(--white); color: var(--red);
+  border: none; border-radius: 12px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.18s;
+}
+.btn-white-solid:hover { background: #f0f0f0; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.2); }
+
+.btn-ghost-white {
+  padding: 12px 24px; background: transparent; color: var(--white);
+  border: 1.5px solid var(--white-border); border-radius: 12px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.18s;
+}
+.btn-ghost-white:hover { background: var(--white-faint); border-color: rgba(255,255,255,0.35); }
+
+/* HERO PRODUCT SHELF */
+.hero-shelf {
+  padding: 0 32px 40px;
+  display: flex; gap: 14px; overflow-x: auto;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+.hero-shelf::-webkit-scrollbar { display: none; }
+
+.shelf-card {
+  flex-shrink: 0; width: 220px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--white-border);
+  border-radius: 16px; overflow: hidden;
+  transition: all 0.22s; cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+.shelf-card:hover { background: rgba(255,255,255,0.16); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.2); }
+.shelf-card-img {
+  width: 100%; aspect-ratio: 4/3; object-fit: cover;
+  display: block; filter: brightness(0.85) saturate(0.7);
+  transition: filter 0.3s ease, transform 0.5s ease;
+}
+.shelf-card:hover .shelf-card-img { filter: brightness(0.95) saturate(1); transform: scale(1.04); }
+.shelf-img-wrap { overflow: hidden; position: relative; }
+
+.shelf-badge {
+  position: absolute; top: 10px; left: 10px; z-index: 2;
+  padding: 3px 9px; border-radius: 6px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.sb-white { background: var(--white); color: var(--red); }
+.sb-sale { background: rgba(0,0,0,0.65); color: var(--white); backdrop-filter: blur(4px); }
+
+.shelf-body { padding: 14px 14px 16px; }
+.shelf-cat { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+.shelf-name { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 12px; line-height: 1.25; }
+.shelf-foot { display: flex; align-items: center; justify-content: space-between; }
+.shelf-price { font-size: 17px; font-weight: 800; color: var(--white); }
+.shelf-price .old { font-size: 11px; color: rgba(255,255,255,0.35); text-decoration: line-through; font-weight: 400; display: block; margin-bottom: 1px; }
+
+.shelf-add {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--white); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s; flex-shrink: 0;
+}
+.shelf-add:hover { background: #f0f0f0; transform: scale(1.1); }
+.shelf-add svg { stroke: var(--red); }
+
+/* SHELF SCROLL HINT */
+.shelf-scroll-hint {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 32px 20px;
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.3);
+}
+.scroll-dots { display: flex; gap: 4px; }
+.scroll-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+.scroll-dot.active { background: var(--white); width: 18px; border-radius: 3px; }
+
+/* ======== SECTIONS ======== */
+section { padding: 72px 32px; }
+
+.sec-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 32px; }
+.sec-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white-dim); margin-bottom: 6px; }
+h2 { font-size: clamp(26px, 3.5vw, 42px); font-weight: 800; letter-spacing: -0.025em; color: var(--white); }
+.see-more {
+  font-size: 13px; font-weight: 600; color: var(--white-dim);
+  text-decoration: none; display: flex; align-items: center; gap: 5px;
+  transition: color 0.15s; white-space: nowrap; padding-bottom: 2px; flex-shrink: 0;
+}
+.see-more:hover { color: var(--white); }
+
+/* ======== FILTER ======== */
+.filter-row { display: flex; gap: 6px; margin-bottom: 28px; flex-wrap: wrap; }
+.fchip {
+  padding: 8px 16px; background: var(--white-faint); border: 1px solid var(--white-border);
+  border-radius: 100px; font-family: inherit; font-size: 12px; font-weight: 600;
+  color: var(--white-dim); cursor: pointer; transition: all 0.15s;
+}
+.fchip:hover { background: rgba(255,255,255,0.18); color: var(--white); }
+.fchip.on { background: var(--white); color: var(--red); border-color: var(--white); }
+
+/* ======== PRODUCTS ======== */
+.pgrid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+}
+
+.pcard {
+  background: rgba(255,255,255,0.09); border: 1px solid var(--white-border);
+  border-radius: 16px; overflow: hidden;
+  transition: all 0.22s; cursor: pointer; position: relative;
+}
+.pcard:hover { background: rgba(255,255,255,0.15); transform: translateY(-5px); box-shadow: 0 20px 48px rgba(0,0,0,0.2); }
+
+.pcard-img-wrap { overflow: hidden; position: relative; aspect-ratio: 1/1; background: rgba(0,0,0,0.15); }
+.pcard-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.85) saturate(0.65); transition: transform 0.5s ease, filter 0.28s ease; }
+.pcard:hover .pcard-img { transform: scale(1.07); filter: brightness(0.95) saturate(1); }
+
+.pbadge {
+  position: absolute; top: 10px; left: 10px; z-index: 2;
+  padding: 4px 10px; border-radius: 7px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.pb-new { background: var(--white); color: var(--red); }
+.pb-sale { background: rgba(0,0,0,0.55); color: var(--white); backdrop-filter: blur(4px); }
+.pb-hot { background: rgba(255,255,255,0.15); color: var(--white); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(4px); }
+
+.pcard-body { padding: 16px 16px 18px; }
+.pcard-cat { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 4px; }
+.pcard-name { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 14px; line-height: 1.25; }
+.pcard-foot { display: flex; align-items: center; justify-content: space-between; }
+.pcard-price { font-size: 19px; font-weight: 800; color: var(--white); }
+.pcard-price .was { font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.35); text-decoration: line-through; display: block; margin-bottom: 1px; }
+
+.add-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--white); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.18s;
+}
+.add-btn:hover { background: #f0f0f0; transform: scale(1.1); }
+.add-btn svg { stroke: var(--red); }
+
+/* ======== STATS ======== */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin: 0 32px 72px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.09); border: 1px solid var(--white-border);
+  border-radius: 16px; padding: 28px 24px;
+  transition: background 0.2s;
+}
+.stat-card:hover { background: rgba(255,255,255,0.14); }
+.stat-n { font-size: 40px; font-weight: 800; letter-spacing: -0.03em; color: var(--white); line-height: 1; margin-bottom: 6px; }
+.stat-l { font-size: 12px; font-weight: 500; color: var(--white-dim); }
+
+/* ======== CATEGORIES ======== */
+.cats-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+}
+.cat-card {
+  border-radius: 16px; overflow: hidden; position: relative;
+  text-decoration: none; display: block; background: rgba(0,0,0,0.2);
+  border: 1px solid var(--white-border); transition: all 0.22s;
+}
+.cat-card::before { content: ''; display: block; padding-top: 130%; }
+.cat-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.25); }
+.cat-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.4) saturate(0.5); transition: transform 0.6s ease, filter 0.3s ease; }
+.cat-card:hover img { transform: scale(1.08); filter: brightness(0.35) saturate(0.7); }
+.cat-card-inner {
+  position: absolute; inset: 0; padding: 18px 16px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%);
+}
+.cat-name { font-size: 16px; font-weight: 800; color: var(--white); margin-bottom: 2px; }
+.cat-count { font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 500; }
+.cat-num {
+  position: absolute; top: 14px; left: 14px;
+  font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.25);
+  letter-spacing: 0.06em;
+}
+.cat-arr {
+  position: absolute; top: 12px; right: 12px;
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--white); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--red); font-weight: 700;
+  transform: scale(0); opacity: 0; transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.cat-card:hover .cat-arr { transform: scale(1); opacity: 1; }
+
+/* ======== PROMO ======== */
+.promo-block {
+  margin: 0 32px 72px;
+  border-radius: 20px; overflow: hidden;
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 320px; border: 1px solid var(--white-border);
+}
+.promo-content {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px);
+  padding: 52px 48px; display: flex; flex-direction: column; justify-content: space-between;
+}
+.promo-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white-dim); margin-bottom: 18px; }
+.promo-content h2 { font-size: clamp(30px, 3vw, 48px); font-weight: 800; letter-spacing: -0.03em; color: var(--white); line-height: 1; }
+.promo-content p { font-size: 14px; color: var(--white-dim); margin-top: 14px; font-weight: 400; line-height: 1.65; }
+.promo-code { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: rgba(255,255,255,0.35); margin-top: 10px; }
+.promo-img { position: relative; overflow: hidden; background: rgba(0,0,0,0.2); }
+.promo-img img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.6) saturate(0.7); transition: transform 8s ease; }
+.promo-img:hover img { transform: scale(1.06); }
+
+/* ======== TICKER ======== */
+.ticker {
+  overflow: hidden; padding: 10px 0;
+  background: rgba(255,255,255,0.1); border-top: 1px solid var(--white-border); border-bottom: 1px solid var(--white-border);
+}
+.ticker-track { display: flex; animation: tick 30s linear infinite; width: max-content; }
+.ticker-item { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.6); padding: 0 22px; white-space: nowrap; }
+.ticker-item b { color: var(--white); font-weight: 800; }
+.ticker-dot { color: rgba(255,255,255,0.25); padding: 0 2px; }
+@keyframes tick { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ======== FOOTER ======== */
+footer { border-top: 1px solid var(--white-border); background: rgba(0,0,0,0.15); padding: 56px 32px 32px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+.footer-brand .logo { font-size: 22px; }
+.footer-brand p { font-size: 13px; color: var(--white-dim); margin-top: 12px; max-width: 220px; line-height: 1.8; font-weight: 400; }
+.nl-form { display: flex; gap: 8px; margin-top: 20px; }
+.nl-form input { flex: 1; padding: 10px 14px; background: var(--white-faint); border: 1px solid var(--white-border); border-radius: 10px; color: var(--white); font-size: 13px; font-family: inherit; outline: none; transition: all 0.2s; }
+.nl-form input::placeholder { color: rgba(255,255,255,0.3); }
+.nl-form input:focus { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.35); }
+.nl-form button { padding: 10px 16px; background: var(--white); color: var(--red); border: none; border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700; transition: all 0.18s; white-space: nowrap; }
+.nl-form button:hover { background: #f0f0f0; }
+
+.footer-col h5 { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 16px; }
+.footer-col a { display: block; font-size: 13px; color: var(--white-dim); text-decoration: none; margin-bottom: 10px; font-weight: 400; transition: color 0.15s; }
+.footer-col a:hover { color: var(--white); }
+
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--white-border); font-size: 12px; color: rgba(255,255,255,0.3); }
+.footer-bottom a { color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.15s; }
+.footer-bottom a:hover { color: var(--white-dim); }
+
+/* ======== REVEAL ======== */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.reveal.in { opacity: 1; transform: none; }
+.d1 { transition-delay: 0.04s; } .d2 { transition-delay: 0.09s; }
+.d3 { transition-delay: 0.14s; } .d4 { transition-delay: 0.19s; }
+.d5 { transition-delay: 0.24s; }
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 1100px) {
+  .pgrid { grid-template-columns: repeat(2, 1fr); }
+  .cats-grid { grid-template-columns: repeat(3, 1fr); }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { gap: 28px; }
+}
+
+@media (max-width: 860px) {
+  nav { padding: 0 18px; }
+  .nav-links { display: none; }
+  .nav-search { display: none; }
+  .hamburger { display: flex; }
+  .hero-top { padding: 44px 18px 24px; }
+  .hero-shelf { padding: 0 18px 32px; }
+  .shelf-scroll-hint { padding: 0 18px 16px; }
+  section { padding: 56px 18px; }
+  .stats-row { margin: 0 18px 56px; }
+  .promo-block { margin: 0 18px 56px; grid-template-columns: 1fr; }
+  .promo-img { min-height: 200px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-brand { grid-column: 1 / -1; }
+  footer { padding: 40px 18px 24px; }
+  .cart-drawer { width: 100%; }
+}
+
+@media (max-width: 560px) {
+  .hero-h1 { letter-spacing: -0.03em; }
+  .pgrid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .cats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .shelf-card { width: 180px; }
+  .promo-content { padding: 32px 24px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .sec-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+
+
+/* ===== SEARCH ===== */
+.nav-search-wrap { position: relative; }
+.nav-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; background: var(--white-faint);
+  border: 1px solid var(--white-border); border-radius: 10px;
+  transition: all 0.25s; min-width: 160px; cursor: text;
+}
+.nav-search-wrap.active .nav-search,
+.nav-search:focus-within {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.4);
+  min-width: 260px;
+}
+.nav-search svg { opacity: 0.5; flex-shrink: 0; }
+.nav-search input {
+  background: none; border: none; outline: none;
+  color: #fff; font-size: 13px; font-family: inherit;
+  width: 100%; min-width: 80px;
+}
+.nav-search input::placeholder { color: rgba(255,255,255,0.45); }
+.search-clear {
+  opacity: 0; font-size: 11px; color: rgba(255,255,255,0.5);
+  cursor: pointer; flex-shrink: 0; transition: opacity 0.15s; line-height: 1;
+}
+.nav-search-wrap.has-text .search-clear { opacity: 1; }
+.search-results {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  width: 340px; background: #1a0002;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 14px;
+  overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  display: none; z-index: 9999; max-height: 420px; overflow-y: auto;
+}
+.nav-search-wrap.open .search-results { display: block; }
+.search-results::-webkit-scrollbar { width: 4px; }
+.search-results::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+.sr-header {
+  padding: 10px 14px 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.35); text-transform: uppercase;
+}
+.sr-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 14px; cursor: pointer; transition: background 0.12s;
+}
+.sr-item:hover, .sr-item.focused { background: rgba(255,255,255,0.07); }
+.sr-img-wrap {
+  width: 42px; height: 42px; flex-shrink: 0;
+  background: rgba(255,255,255,0.07); border-radius: 8px;
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.sr-img-wrap img { width: 100%; height: 100%; object-fit: contain; }
+.sr-info { flex: 1; min-width: 0; }
+.sr-name {
+  font-size: 13px; font-weight: 600; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sr-name mark {
+  background: rgba(255,60,60,0.45); color: #fff;
+  border-radius: 2px; padding: 0 1px;
+}
+.sr-cat { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+.sr-price { font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.sr-add {
+  width: 28px; height: 28px; flex-shrink: 0;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 7px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1; cursor: pointer; transition: all 0.15s; color: #fff;
+}
+.sr-add:hover { background: rgba(255,255,255,0.25); }
+.sr-empty {
+  padding: 28px 14px; text-align: center;
+  color: rgba(255,255,255,0.35); font-size: 13px;
+}
+.sr-empty span { font-size: 28px; display: block; margin-bottom: 6px; }
+.sr-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0; }
+
+</style>
+</head>
+<script>
+function imgFb(el){
+  var fb=el.getAttribute("data-fb");
+  if(!fb)return;
+  var list=fb.split(",").filter(Boolean);
+  var idx=parseInt(el.getAttribute("data-fb-idx")||"0");
+  if(idx>=list.length){el.style.opacity="0.3";return;}
+  el.setAttribute("data-fb-idx",idx+1);
+  el.src=list[idx];
+}
+</script>
+<body>
+
+<!-- CART -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>Cart (<span id="cartCountH">0</span>)</h3>
+    <button class="cart-close" id="cartClose">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Your cart is empty</div></div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total-row">
+      <span class="ct-label">Total</span>
+      <span class="ct-val" id="cartTotal">$0</span>
+    </div>
+    <button class="checkout-btn">Checkout</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#"><span class="re">re</span>Spawn</a>
+  <ul class="nav-links">
+    <li><a href="#products">GPUs</a></li>
+    <li><a href="#products">CPUs</a></li>
+    <li><a href="#cats">All Parts</a></li>
+    <li><a href="#promo">Deals</a></li>
+    <li><a href="#">Build Guide</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nav-search-wrap" id="searchWrap">
+      <div class="nav-search" id="searchBar" onclick="openSearch()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search parts..." autocomplete="off"
+               oninput="runSearch(this.value)" onkeydown="searchKey(event)" />
+        <span class="search-clear" id="searchClear" onclick="clearSearch()">✕</span>
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <button class="cart-btn" id="cartBtn">
+      Cart
+      <span class="badge" id="cartCount">0</span>
+    </button>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#products" onclick="closeMenu()">GPUs</a>
+  <a href="#products" onclick="closeMenu()">CPUs</a>
+  <a href="#cats" onclick="closeMenu()">All Parts</a>
+  <a href="#promo" onclick="closeMenu()">Deals</a>
+  <a href="#" onclick="closeMenu()">Build Guide</a>
+  <button class="m-cart-btn" onclick="closeMenu(); openCart()">Cart (<span id="cartCountM">0</span>)</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-pill">New Stock</span>
+      <span class="eyebrow-text">RTX 5090 just landed</span>
+    </div>
+    <h1 class="hero-h1">PC Hardware.<br><span>Seriously Good.</span></h1>
+    <p class="hero-sub">GPUs, CPUs, RAM, storage, cooling. In stock and shipped fast.</p>
+    <div class="hero-actions">
+      <a href="#products" class="btn-white-solid">Shop All Parts</a>
+      <a href="#" class="btn-ghost-white">Build Guide</a>
+    </div>
+  </div>
+
+  <div class="ticker" style="margin-bottom: 24px;">
+    <div class="ticker-track">
+      <span class="ticker-item"><b>RTX 5090</b> in stock</span><span class="ticker-dot">·</span>
+      <span class="ticker-item">Free shipping over $150</span><span class="ticker-dot">·</span>
+      <span class="ticker-item"><b>RX 9070 XT</b> available</span><span class="ticker-dot">·</span>
+      <span class="ticker-item">Price match guarantee</span><span class="ticker-dot">·</span>
+      <span class="ticker-item"><b>Core Ultra 9 285K</b> 15% off</span><span class="ticker-dot">·</span>
+      <span class="ticker-item">Same day dispatch before 3PM</span><span class="ticker-dot">·</span>
+      <span class="ticker-item"><b>RTX 5090</b> in stock</span><span class="ticker-dot">·</span>
+      <span class="ticker-item">Free shipping over $150</span><span class="ticker-dot">·</span>
+      <span class="ticker-item"><b>RX 9070 XT</b> available</span><span class="ticker-dot">·</span>
+      <span class="ticker-item">Price match guarantee</span><span class="ticker-dot">·</span>
+      <span class="ticker-item"><b>Core Ultra 9 285K</b> 15% off</span><span class="ticker-dot">·</span>
+      <span class="ticker-item">Same day dispatch before 3PM</span><span class="ticker-dot">·</span>
+    </div>
+  </div>
+
+  <!-- PRODUCT SHELF on hero -->
+  <div class="hero-shelf" id="heroShelf">
+
+    <div class="shelf-card">
+      <div class="shelf-img-wrap">
+        <img class="shelf-card-img" src="https://assets.nvidia.partners/images/5090_Front_.webp" data-fb="https://c1.neweggimages.com/productimage/nb640/1FT-0004-008V4.jpg" onerror="imgFb(this)" alt="RTX 5090">
+        <span class="shelf-badge sb-white">New</span>
+      </div>
+      <div class="shelf-body">
+        <div class="shelf-cat">Graphics Card</div>
+        <div class="shelf-name">RTX 5090 Founders Edition</div>
+        <div class="shelf-foot">
+          <div class="shelf-price">$1,999</div>
+          <button class="shelf-add" onclick="addToCart('RTX 5090 FE', 1999, 'GPU', 'https://images.unsplash.com/photo-1710002581130-8412bb90e6c3?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf-card">
+      <div class="shelf-img-wrap">
+        <img class="shelf-card-img" src="https://media.cdn.sapphiretech.com.cn/-/media/sites/sapphire/pim/product-images/11348_01_rx9070xt_nitro_16ggddr6/rx9070xt_nitro_photo_374x265.ashx" data-fb="https://c1.neweggimages.com/productimage/nb640/14-202-448-01.jpg" onerror="imgFb(this)" alt="RX 9070 XT">
+        <span class="shelf-badge sb-white">Hot</span>
+      </div>
+      <div class="shelf-body">
+        <div class="shelf-cat">Graphics Card</div>
+        <div class="shelf-name">RX 9070 XT 16GB</div>
+        <div class="shelf-foot">
+          <div class="shelf-price">$599</div>
+          <button class="shelf-add" onclick="addToCart('RX 9070 XT 16GB', 599, 'GPU', 'https://images.unsplash.com/photo-1593640408182-31c228b42e29?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf-card">
+      <div class="shelf-img-wrap">
+        <img class="shelf-card-img" src="https://c1.neweggimages.com/productimage/nb640/19-118-505-08.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/19-118-505-01.jpg" onerror="imgFb(this)" alt="Ryzen 9950X3D">
+        <span class="shelf-badge sb-sale">-15%</span>
+      </div>
+      <div class="shelf-body">
+        <div class="shelf-cat">Processor</div>
+        <div class="shelf-name">Core Ultra 9 285K</div>
+        <div class="shelf-foot">
+          <div class="shelf-price"><span class="old">$649</span>$549</div>
+          <button class="shelf-add" onclick="addToCart('Core Ultra 9 285K', 549, 'CPU', 'https://images.unsplash.com/photo-1524741978410-350ba91a70d7?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf-card">
+      <div class="shelf-img-wrap">
+        <img class="shelf-card-img" src="https://c1.neweggimages.com/productimage/nb640/13-119-682-01.jpg" data-fb="https://dlcdnwebimgs.asus.com/files/media/c90a2a18-b20d-4a21-9bbf-d4723b7a144e/v1/img/kv/strix.png" onerror="imgFb(this)" alt="Motherboard">
+        <span class="shelf-badge sb-white">New</span>
+      </div>
+      <div class="shelf-body">
+        <div class="shelf-cat">Motherboard</div>
+        <div class="shelf-name">ROG Strix X870-E WiFi</div>
+        <div class="shelf-foot">
+          <div class="shelf-price">$449</div>
+          <button class="shelf-add" onclick="addToCart('ROG Strix X870-E', 449, 'Motherboard', 'https://images.unsplash.com/photo-1526329819580-ef7bddb59c56?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf-card">
+      <div class="shelf-img-wrap">
+        <img class="shelf-card-img" src="https://c1.neweggimages.com/productimage/nb640/14-932-671-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/14-932-671-02.jpg" onerror="imgFb(this)" alt="DDR5">
+        <span class="shelf-badge sb-sale">-25%</span>
+      </div>
+      <div class="shelf-body">
+        <div class="shelf-cat">GPU</div>
+        <div class="shelf-name">RTX 4080 Super 16GB</div>
+        <div class="shelf-foot">
+          <div class="shelf-price"><span class="old">$159</span>$119</div>
+          <button class="shelf-add" onclick="addToCart('RTX 4080 Super 16GB', 119, 'Memory', 'https://images.unsplash.com/photo-1680868543515-55d60e7b6b28?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf-card">
+      <div class="shelf-img-wrap">
+        <img class="shelf-card-img" src="https://c1.neweggimages.com/productimage/nb640/20-147-861-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/20-147-861-V03.jpg" onerror="imgFb(this)" alt="SSD">
+      </div>
+      <div class="shelf-body">
+        <div class="shelf-cat">Storage</div>
+        <div class="shelf-name">Samsung 990 Pro 2TB</div>
+        <div class="shelf-foot">
+          <div class="shelf-price">$159</div>
+          <button class="shelf-add" onclick="addToCart('Samsung 990 Pro 2TB', 159, 'Storage', 'https://images.unsplash.com/photo-1541029071515-84cc54f84dc5?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf-card">
+      <div class="shelf-img-wrap">
+        <img class="shelf-card-img" src="https://c1.neweggimages.com/productimage/nb640/35-186-276-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/35-186-276-03.jpg" onerror="imgFb(this)" alt="AIO">
+        <span class="shelf-badge sb-white">Hot</span>
+      </div>
+      <div class="shelf-body">
+        <div class="shelf-cat">CPU Cooler</div>
+        <div class="shelf-name">Arctic Liquid Freezer 360</div>
+        <div class="shelf-foot">
+          <div class="shelf-price">$89</div>
+          <button class="shelf-add" onclick="addToCart('Arctic Liquid Freezer 360', 89, 'Cooler', 'https://images.unsplash.com/photo-1627831893945-2d33cc44fa3d?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf-card">
+      <div class="shelf-img-wrap">
+        <img class="shelf-card-img" src="https://c1.neweggimages.com/productimage/nb640/11-112-578-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/11-112-578-02.jpg" onerror="imgFb(this)" alt="Case">
+        <span class="shelf-badge sb-white">New</span>
+      </div>
+      <div class="shelf-body">
+        <div class="shelf-cat">Case</div>
+        <div class="shelf-name">Lian Li O11D EVO</div>
+        <div class="shelf-foot">
+          <div class="shelf-price">$169</div>
+          <button class="shelf-add" onclick="addToCart('Lian Li O11D EVO', 169, 'Case', 'https://images.unsplash.com/photo-1593640495253-23196b27a87f?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="shelf-scroll-hint">
+    <div class="scroll-dots">
+      <div class="scroll-dot active"></div>
+      <div class="scroll-dot"></div>
+      <div class="scroll-dot"></div>
+    </div>
+    Scroll to see more
+  </div>
+</div>
+
+<!-- PRODUCTS GRID SECTION -->
+<section id="products">
+  <div class="sec-row">
+    <div>
+      <div class="sec-label reveal">Top picks</div>
+      <h2 class="reveal">Best Sellers</h2>
+    </div>
+    <a href="#" class="see-more reveal">All products →</a>
+  </div>
+
+  <div class="filter-row reveal">
+    <button class="fchip on" data-f="all">All</button>
+    <button class="fchip" data-f="gpu">GPUs</button>
+    <button class="fchip" data-f="cpu">CPUs</button>
+    <button class="fchip" data-f="memory">Memory</button>
+    <button class="fchip" data-f="storage">Storage</button>
+    <button class="fchip" data-f="cooling">Cooling</button>
+    <button class="fchip" data-f="psu">PSU</button>
+    <button class="fchip" data-f="case">Cases</button>
+  </div>
+
+  <div class="pgrid">
+    <div class="pcard reveal d1" data-c="gpu">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="https://media.cdn.sapphiretech.com.cn/-/media/sites/sapphire/pim/product-images/11348_01_rx9070xt_nitro_16ggddr6/rx9070xt_nitro_photo_374x265.ashx" data-fb="https://c1.neweggimages.com/productimage/nb640/14-202-448-01.jpg" onerror="imgFb(this)" alt="GPU">
+        <span class="pbadge pb-hot">Hot</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Graphics Card</div>
+        <div class="pcard-name">RX 9070 XT 16GB</div>
+        <div class="pcard-foot">
+          <div class="pcard-price">$599</div>
+          <button class="add-btn" onclick="addToCart('RX 9070 XT 16GB', 599, 'GPU', 'https://images.unsplash.com/photo-1593640408182-31c228b42e29?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard reveal d2" data-c="memory">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="https://c1.neweggimages.com/productimage/nb640/14-932-671-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/14-932-671-02.jpg" onerror="imgFb(this)" alt="RAM">
+        <span class="pbadge pb-sale">-25%</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Memory</div>
+        <div class="pcard-name">RTX 4080 Super 16GB</div>
+        <div class="pcard-foot">
+          <div class="pcard-price">$699</div>
+          <button class="add-btn" onclick="addToCart('RTX 4080 Super 16GB', 119, 'Memory', 'https://images.unsplash.com/photo-1680868543515-55d60e7b6b28?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard reveal d3" data-c="board">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="https://c1.neweggimages.com/productimage/nb640/13-119-682-01.jpg" data-fb="https://dlcdnwebimgs.asus.com/files/media/c90a2a18-b20d-4a21-9bbf-d4723b7a144e/v1/img/kv/strix.png" onerror="imgFb(this)" alt="Motherboard">
+        <span class="pbadge pb-new">New</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Motherboard</div>
+        <div class="pcard-name">ROG Strix X870-E WiFi</div>
+        <div class="pcard-foot">
+          <div class="pcard-price">$449</div>
+          <button class="add-btn" onclick="addToCart('ROG Strix X870-E', 449, 'Motherboard', 'https://images.unsplash.com/photo-1526329819580-ef7bddb59c56?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard reveal d4" data-c="storage">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="https://c1.neweggimages.com/productimage/nb640/20-147-861-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/20-147-861-V03.jpg" onerror="imgFb(this)" alt="SSD">
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Storage</div>
+        <div class="pcard-name">Samsung 990 Pro 2TB</div>
+        <div class="pcard-foot">
+          <div class="pcard-price">$159</div>
+          <button class="add-btn" onclick="addToCart('Samsung 990 Pro 2TB', 159, 'Storage', 'https://images.unsplash.com/photo-1541029071515-84cc54f84dc5?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard reveal d1" data-c="cooling">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="https://c1.neweggimages.com/productimage/nb640/35-186-276-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/35-186-276-03.jpg" onerror="imgFb(this)" alt="Cooler">
+        <span class="pbadge pb-hot">Hot</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">CPU Cooler</div>
+        <div class="pcard-name">Arctic Liquid Freezer 360</div>
+        <div class="pcard-foot">
+          <div class="pcard-price">$89</div>
+          <button class="add-btn" onclick="addToCart('Arctic Liquid Freezer 360', 89, 'Cooler', 'https://images.unsplash.com/photo-1627831893945-2d33cc44fa3d?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard reveal d2" data-c="psu">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="https://assets.corsair.com/image/upload/c_pad,q_85,h_1100,w_1100,f_auto/products/Power-Supply-Units/base-hxi-2023-config/1000W/CP-9020259/Gallery/CP-9020259_01.webp" data-fb="https://c1.neweggimages.com/productimage/nb640/17-139-306-04.jpg" onerror="imgFb(this)" alt="PSU">
+        <span class="pbadge pb-sale">-18%</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Power Supply</div>
+        <div class="pcard-name">Corsair HX1000i</div>
+        <div class="pcard-foot">
+          <div class="pcard-price"><span class="was">$219</span>$179</div>
+          <button class="add-btn" onclick="addToCart('Corsair HX1000i', 179, 'PSU', 'https://images.unsplash.com/photo-1591489378430-ef2f4c626b35?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard reveal d3" data-c="case">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="https://c1.neweggimages.com/productimage/nb640/11-112-578-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/11-112-578-02.jpg" onerror="imgFb(this)" alt="Case">
+        <span class="pbadge pb-new">New</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">PC Case</div>
+        <div class="pcard-name">Lian Li O11D EVO</div>
+        <div class="pcard-foot">
+          <div class="pcard-price">$169</div>
+          <button class="add-btn" onclick="addToCart('Lian Li O11D EVO', 169, 'Case', 'https://images.unsplash.com/photo-1593640495253-23196b27a87f?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard reveal d4" data-c="gpu">
+      <div class="pcard-img-wrap">
+        <img class="pcard-img" src="https://c1.neweggimages.com/productimage/nb640/14-137-824-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/14-137-824-02.jpg" onerror="imgFb(this)" alt="GPU">
+        <span class="pbadge pb-sale">-22%</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Graphics Card</div>
+        <div class="pcard-name">RTX 4070 Super 12GB</div>
+        <div class="pcard-foot">
+          <div class="pcard-price"><span class="was">$599</span>$469</div>
+          <button class="add-btn" onclick="addToCart('RTX 4070 Super', 469, 'GPU', 'https://images.unsplash.com/photo-1593640495253-23196b27a87f?w=200&q=80')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-row reveal">
+  <div class="stat-card"><div class="stat-n">40K+</div><div class="stat-l">Orders shipped</div></div>
+  <div class="stat-card"><div class="stat-n">8,000</div><div class="stat-l">Products in stock</div></div>
+  <div class="stat-card"><div class="stat-n">4.9★</div><div class="stat-l">Average rating</div></div>
+  <div class="stat-card"><div class="stat-n">24/7</div><div class="stat-l">Support available</div></div>
+</div>
+
+<!-- CATEGORIES -->
+<section id="cats" style="padding-top:0">
+  <div class="sec-row">
+    <div>
+      <div class="sec-label reveal">Browse</div>
+      <h2 class="reveal">Shop by Category</h2>
+    </div>
+    <a href="#" class="see-more reveal">All categories →</a>
+  </div>
+  <div class="cats-grid">
+    <a href="#" class="cat-card reveal d1">
+      <img src="https://media.cdn.sapphiretech.com.cn/-/media/sites/sapphire/pim/product-images/11348_01_rx9070xt_nitro_16ggddr6/rx9070xt_nitro_photo_374x265.ashx" data-fb="https://c1.neweggimages.com/productimage/nb640/14-202-448-01.jpg" onerror="imgFb(this)" alt="GPUs">
+      <div class="cat-card-inner"><div class="cat-name">GPUs</div><div class="cat-count">142 products</div></div>
+      <div class="cat-num">01</div><span class="cat-arr">↗</span>
+    </a>
+    <a href="#" class="cat-card reveal d2">
+      <img src="https://c1.neweggimages.com/productimage/nb640/19-118-505-08.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/19-118-505-01.jpg" onerror="imgFb(this)" alt="CPUs">
+      <div class="cat-card-inner"><div class="cat-name">CPUs</div><div class="cat-count">98 products</div></div>
+      <div class="cat-num">02</div><span class="cat-arr">↗</span>
+    </a>
+    <a href="#" class="cat-card reveal d3">
+      <img src="https://c1.neweggimages.com/productimage/nb640/14-932-671-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/14-932-671-02.jpg" onerror="imgFb(this)" alt="Memory">
+      <div class="cat-card-inner"><div class="cat-name">Memory</div><div class="cat-count">210 products</div></div>
+      <div class="cat-num">03</div><span class="cat-arr">↗</span>
+    </a>
+    <a href="#" class="cat-card reveal d4">
+      <img src="https://c1.neweggimages.com/productimage/nb640/13-119-682-01.jpg" data-fb="https://dlcdnwebimgs.asus.com/files/media/c90a2a18-b20d-4a21-9bbf-d4723b7a144e/v1/img/kv/strix.png" onerror="imgFb(this)" alt="Boards">
+      <div class="cat-card-inner"><div class="cat-name">Boards</div><div class="cat-count">134 products</div></div>
+      <div class="cat-num">04</div><span class="cat-arr">↗</span>
+    </a>
+    <a href="#" class="cat-card reveal d5">
+      <img src="https://c1.neweggimages.com/productimage/nb640/11-112-578-01.jpg" data-fb="https://c1.neweggimages.com/productimage/nb640/11-112-578-02.jpg" onerror="imgFb(this)" alt="Cases">
+      <div class="cat-card-inner"><div class="cat-name">Cases</div><div class="cat-count">76 products</div></div>
+      <div class="cat-num">05</div><span class="cat-arr">↗</span>
+    </a>
+  </div>
+</section>
+
+<!-- PROMO -->
+<div class="promo-block reveal" id="promo">
+  <div class="promo-content">
+    <div>
+      <div class="promo-tag">Weekend only · Ends Sunday</div>
+      <h2>Up to 30%<br>off storage.</h2>
+      <p>Samsung, WD, Seagate. NVMe Gen 4, SATA and external. While stock lasts.</p>
+      <div class="promo-code">Use code RESPAWN30 at checkout</div>
+    </div>
+    <a href="#" class="btn-white-solid" style="align-self:flex-start; margin-top: 28px;">Browse Deals</a>
+  </div>
+  <div class="promo-img">
+    <img src="https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg?auto=compress&cs=tinysrgb&w=900?w=900&q=85&fit=crop" alt="PC Build">
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="logo"><span class="re">re</span>Spawn</a>
+      <p>PC hardware in stock, shipped fast, priced right.</p>
+      <div class="nl-form">
+        <input type="email" placeholder="your@email.com">
+        <button>Subscribe</button>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Shop</h5>
+      <a href="#">Graphics Cards</a>
+      <a href="#">Processors</a>
+      <a href="#">Motherboards</a>
+      <a href="#">Memory</a>
+      <a href="#">Storage</a>
+      <a href="#">Cooling</a>
+    </div>
+    <div class="footer-col">
+      <h5>Help</h5>
+      <a href="#">Track Order</a>
+      <a href="#">Returns</a>
+      <a href="#">Warranty</a>
+      <a href="#">Contact</a>
+      <a href="#">FAQs</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="#">About</a>
+      <a href="#">Careers</a>
+      <a href="#">Press</a>
+      <a href="#">Blog</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 reSpawn Hardware. All rights reserved.</span>
+    <span><a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Cookies</a></span>
+  </div>
+</footer>
+
+<script>
+// CART
+let cart = [];
+function updateUI() {
+  const count = cart.reduce((s,i)=>s+i.qty,0);
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  ['cartCount','cartCountM'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=count;});
+  document.getElementById('cartCountH').textContent = count;
+  document.getElementById('cartTotal').textContent = '$'+total.toLocaleString();
+  const el = document.getElementById('cartItems');
+  if(!cart.length){el.innerHTML='<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Your cart is empty</div></div>';return;}
+  el.innerHTML=cart.map((item,i)=>`
+    <div class="cart-item">
+      <img class="cart-item-img" src="${item.img}" alt="${item.name}" onerror="this.style.background='#eee'">
+      <div class="cart-item-info">
+        <div class="cart-item-cat">${item.cat}</div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">$${(item.price*item.qty).toLocaleString()} × ${item.qty}</div>
+      </div>
+      <button class="cart-item-rm" onclick="removeItem(${i})">×</button>
+    </div>`).join('');
+}
+function addToCart(name,price,cat,img){
+  const ex=cart.find(i=>i.name===name);
+  if(ex)ex.qty++;else cart.push({name,price,cat,img,qty:1});
+  updateUI();openCart();
+}
+function removeItem(i){cart.splice(i,1);updateUI();}
+function openCart(){
+  document.getElementById('cartOverlay').classList.add('open');
+  document.getElementById('cartDrawer').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeCartFn(){
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('cartBtn').onclick=openCart;
+document.getElementById('cartClose').onclick=closeCartFn;
+document.getElementById('cartOverlay').onclick=closeCartFn;
+
+// HAMBURGER
+const hb=document.getElementById('hamburger'),mm=document.getElementById('mobileMenu');
+hb.addEventListener('click',()=>{hb.classList.toggle('open');mm.classList.toggle('open');});
+function closeMenu(){hb.classList.remove('open');mm.classList.remove('open');}
+document.addEventListener('click',e=>{if(!hb.contains(e.target)&&!mm.contains(e.target))closeMenu();});
+
+// REVEAL
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target);}});
+},{threshold:0.06});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// FILTER
+document.querySelectorAll('.fchip').forEach(chip=>{
+  chip.addEventListener('click',function(){
+    document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));
+    this.classList.add('on');
+    const f=this.dataset.f;
+    document.querySelectorAll('.pcard').forEach(c=>{
+      const show=f==='all'||c.dataset.c===f;
+      c.style.display=show?'':'none';
+      if(show){c.classList.remove('in');setTimeout(()=>c.classList.add('in'),30);}
+    });
+  });
+});
+
+// IMG FALLBACK
+document.querySelectorAll('img').forEach(img=>{
+  img.onerror=function(){this.style.display='none';if(this.parentElement)this.parentElement.style.background='rgba(0,0,0,0.2)';};
+});
+</script>
+
+
+<script>
+(function() {
+  var CATALOG = [];
+  var wrap, input, resultsEl, focusIdx = -1;
+
+  function init() {
+    wrap = document.getElementById('searchWrap');
+    input = document.getElementById('searchInput');
+    resultsEl = document.getElementById('searchResults');
+    if (!wrap || !input || !resultsEl) return;
+    buildCatalog();
+    document.addEventListener('click', function(e) {
+      if (!wrap.contains(e.target)) closeResults();
+    });
+  }
+
+  function buildCatalog() {
+    CATALOG = [];
+    document.querySelectorAll('.pcard, .shelf-card').forEach(function(card) {
+      var nameEl = card.querySelector('.pcard-name, .shelf-name');
+      var catEl  = card.querySelector('.pcard-cat, .shelf-cat');
+      var imgEl  = card.querySelector('.pcard-img, .shelf-card-img');
+      if (!nameEl) return;
+      var name = nameEl.textContent.trim();
+      if (CATALOG.some(function(p) { return p.name === name; })) return;
+      var cat = catEl ? catEl.textContent.trim() : '';
+      var img = imgEl ? imgEl.src : '';
+      var price = 0;
+      var priceEl = card.querySelector('.pcard-price, .shelf-price');
+      if (priceEl) {
+        var pm = priceEl.textContent.match(/\$(\d+(?:\.\d+)?)/);
+        if (pm) price = parseFloat(pm[1]);
+      }
+      var addFn = '';
+      var btn = card.querySelector('[onclick*="addToCart"]');
+      if (btn) addFn = btn.getAttribute('onclick');
+      CATALOG.push({ name: name, cat: cat, img: img, price: price, addFn: addFn, card: card });
+    });
+  }
+
+  function closeResults() {
+    if (wrap) wrap.classList.remove('open');
+    focusIdx = -1;
+  }
+
+  function highlight(text, q) {
+    var esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return text.replace(new RegExp('(' + esc + ')', 'gi'), '<mark>$1</mark>');
+  }
+
+  window.openSearch = function() { if (input) input.focus(); };
+
+  window.clearSearch = function() {
+    if (!input) return;
+    input.value = '';
+    wrap.classList.remove('has-text', 'open');
+    resultsEl.innerHTML = '';
+    focusIdx = -1;
+  };
+
+  window.runSearch = function(q) {
+    q = (q || '').trim();
+    wrap.classList.toggle('has-text', q.length > 0);
+    focusIdx = -1;
+    if (!q) { closeResults(); resultsEl.innerHTML = ''; return; }
+    if (CATALOG.length === 0) buildCatalog();
+    var lower = q.toLowerCase();
+    var matches = CATALOG.filter(function(p) {
+      return p.name.toLowerCase().indexOf(lower) !== -1 ||
+             p.cat.toLowerCase().indexOf(lower) !== -1;
+    });
+    window._srMatches = matches;
+    wrap.classList.add('open');
+    renderResults(matches, q);
+  };
+
+  function renderResults(matches, q) {
+    if (matches.length === 0) {
+      resultsEl.innerHTML = '<div class="sr-empty"><span>&#128269;</span>No parts found for &ldquo;' + q + '&rdquo;</div>';
+      return;
+    }
+    var html = '<div class="sr-header">' + matches.length + ' result' + (matches.length !== 1 ? 's' : '') + '</div>';
+    matches.forEach(function(p, i) {
+      var price = p.price ? '$' + Math.round(p.price) : '';
+      var imgHtml = p.img
+        ? '<img src="' + p.img + '" alt="" onerror="this.style.opacity=0">'
+        : '';
+      html += '<div class="sr-item' + (i === focusIdx ? ' focused' : '') + '" onclick="srSelect(' + i + ')">'
+        + '<div class="sr-img-wrap">' + imgHtml + '</div>'
+        + '<div class="sr-info">'
+        + '<div class="sr-name">' + highlight(p.name, q) + '</div>'
+        + '<div class="sr-cat">' + p.cat + '</div>'
+        + '</div>'
+        + (price ? '<div class="sr-price">' + price + '</div>' : '')
+        + '<div class="sr-add" onclick="event.stopPropagation();srAdd(' + i + ')">+</div>'
+        + '</div>';
+      if (i < matches.length - 1) html += '<div class="sr-divider"></div>';
+    });
+    resultsEl.innerHTML = html;
+  }
+
+  window.srSelect = function(i) {
+    var matches = window._srMatches || [];
+    var p = matches[i];
+    if (!p) return;
+    clearSearch();
+    if (p.card) {
+      p.card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var old = p.card.style.transition;
+      p.card.style.transition = 'box-shadow 0.2s';
+      p.card.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.85)';
+      setTimeout(function() {
+        p.card.style.boxShadow = '';
+        p.card.style.transition = old;
+      }, 1200);
+    }
+  };
+
+  window.srAdd = function(i) {
+    var matches = window._srMatches || [];
+    var p = matches[i];
+    if (!p) return;
+    if (p.addFn) {
+      try { eval(p.addFn); } catch(e) {
+        if (p.name && p.price) addToCart(p.name, p.price, p.cat, p.img);
+      }
+    } else if (p.name && p.price) {
+      addToCart(p.name, p.price, p.cat, p.img);
+    }
+    clearSearch();
+  };
+
+  window.searchKey = function(e) {
+    var items = resultsEl ? resultsEl.querySelectorAll('.sr-item') : [];
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      focusIdx = Math.min(focusIdx + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      focusIdx = Math.max(focusIdx - 1, -1);
+    } else if (e.key === 'Enter') {
+      if (focusIdx >= 0) { srSelect(focusIdx); return; }
+    } else if (e.key === 'Escape') {
+      clearSearch(); return;
+    } else { return; }
+    items.forEach(function(el, idx) { el.classList.toggle('focused', idx === focusIdx); });
+    if (focusIdx >= 0 && items[focusIdx]) items[focusIdx].scrollIntoView({ block: 'nearest' });
+  };
+
+  // Init - run now since script is at bottom of body
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+</body>
+</html>
